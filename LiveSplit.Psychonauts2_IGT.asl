@@ -8,7 +8,7 @@ state("Psychonauts2-Win64-Shipping", "Steam1087071")
 }
 state("Psychonauts2-Win64-Shipping", "DRMFree")
 {
-	bool isLoading : "Psychonauts2-Win64-Shipping.exe", 0x0514A4C0, 0x28, 0x2D8, 0x5E0, 0x30;	//Humble/GoG Launch Patch Loading pointer
+	bool isLoading : "Psychonauts2-Win64-Shipping.exe", 0x052754E8, 0x8, 0x5E0, 0x30;	//Humble/GoG Launch Patch Loading pointer
 }
 state("Psychonauts2-WinGDK-Shipping", "Gamepass")
 {
