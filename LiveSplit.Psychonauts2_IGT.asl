@@ -37,7 +37,7 @@ init
 			break;
 	}
 
-	print("ModuleMemorySize: " + modules.First().ModuleMemorySize.ToString()); //Used to find the Memory Size of the game.
+	// print("ModuleMemorySize: " + modules.First().ModuleMemorySize.ToString()); //Used to find the Memory Size of the game.
 }
 isLoading
 {
