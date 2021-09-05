@@ -12,7 +12,7 @@ state("Psychonauts2-Win64-Shipping", "DRMFree")
 }
 state("Psychonauts2-WinGDK-Shipping", "Gamepass")
 {
-	bool isLoading : "Psychonauts2-WinGDK-Shipping.exe", 0x04FF7290, 0x710, 0x10, 0x28, 0x10, 0x170, 0x8; //Gamepass Launch Patch Loading pointer
+	bool isLoading : "Psychonauts2-WinGDK-Shipping.exe", 0x0514CA78, 0x8, 0x5E0, 0x30; //Gamepass Launch Patch Loading pointer
 }
 start
 {
