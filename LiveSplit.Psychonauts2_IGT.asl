@@ -6,6 +6,10 @@ state("Psychonauts2-Win64-Shipping", "Steam1087071")
 {
 	bool isLoading : "Psychonauts2-Win64-Shipping.exe", 0x0553D168, 0x8, 0x5E0, 0x30;    //Steam Patch 2 Loading Pointer
 }
+state("Psychonauts2-Win64-Shipping", "Steam1087126")			
+{
+	bool isLoading : "Psychonauts2-Win64-Shipping.exe", 0x05333880, 0x2D0, 0x1C0, 0x448, 0x30;    //Steam Patch 2 Loading Pointer
+}
 state("Psychonauts2-Win64-Shipping", "DRMFree")
 {
 	bool isLoading : "Psychonauts2-Win64-Shipping.exe", 0x052754E8, 0x8, 0x5E0, 0x30;	//Humble/GoG Launch Patch Loading pointer
@@ -38,6 +42,9 @@ init
 			break;
 		case 95236096:
 			version = "Steam1087071";		//Steam patch 2
+			break;
+		case 95240192:
+			version = "Steam1087126";		//Steam patch 3
 			break;
 		case 390800128:
 			version = "Gamepass";			//Gamepass Launch version
