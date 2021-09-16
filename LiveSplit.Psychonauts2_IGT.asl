@@ -26,6 +26,10 @@ state("Psychonauts2-WinGDK-Shipping", "Gamepass")
 {
 	bool isLoading : "Psychonauts2-WinGDK-Shipping.exe", 0x0517DC70, 0x78, 0x90, 0x118, 0x390, 0x170, 0x8; //Gamepass Launch Patch Loading pointer
 }
+state("Psychonauts2-WinGDK-Shipping", "Gamepass1087126")
+{
+	bool isLoading : "Psychonauts2-WinGDK-Shipping.exe", 0x05183D10, 0x118, 0x390, 0x170, 0x8; //Gamepass Launch Patch Loading pointer
+}
 start
 {
 }
@@ -55,6 +59,9 @@ init
 			break;
 		case 390800128:
 			version = "Gamepass";			//Gamepass Launch version
+			break;
+		case 90824704
+			version = "Gamepass1087126";	//Gamepass Patch 1
 			break;
 	}
 
