@@ -60,7 +60,7 @@ init
 		case 390800128:
 			version = "Gamepass";			//Gamepass Launch version
 			break;
-		case 90824704
+		case 90824704:
 			version = "Gamepass1087126";	//Gamepass Patch 1
 			break;
 	}
