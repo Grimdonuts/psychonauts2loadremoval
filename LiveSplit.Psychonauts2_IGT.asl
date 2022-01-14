@@ -12,7 +12,7 @@ state("Psychonauts2-Win64-Shipping", "Steam1087126")
 }
 state("Psychonauts2-Win64-Shipping", "Steam1088619")			
 {
-	bool isLoading : "Psychonauts2-Win64-Shipping.exe", 0x0055454E8, 0x8, 0x5E0, 0x30;    //Steam Patch 4 Loading Pointer
+	bool isLoading : "Psychonauts2-Win64-Shipping.exe", 0x0533AC50, 0x430, 0x8;    //Steam Patch 4 Loading Pointer
 }
 state("Psychonauts2-Win64-Shipping", "DRMFree")
 {
