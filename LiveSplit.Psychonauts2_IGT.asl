@@ -50,9 +50,26 @@ state("Psychonauts2-WinGDK-Shipping", "Gamepass1087126")
 {
 	bool isLoading : "Psychonauts2-WinGDK-Shipping.exe", 0x05183D10, 0x118, 0x390, 0x170, 0x8; //Gamepass Launch Patch Loading pointer
 }
-start
+
+startup
 {
+	// Code by Micrologist
+    if (timer.CurrentTimingMethod == TimingMethod.RealTime)
+    {
+        var timingMessage = MessageBox.Show (
+            "This game uses Time without Loads (Game Time) as the main timing method.\n"+
+            "LiveSplit is currently set to show Real Time (RTA).\n"+
+            "Would you like to set the timing method to Game Time?",
+            "LiveSplit | Psychonauts 2",
+            MessageBoxButtons.YesNo,MessageBoxIcon.Question
+        );
+        if (timingMessage == DialogResult.Yes)
+        {
+            timer.CurrentTimingMethod = TimingMethod.GameTime;
+        }
+    }
 }
+
 init
 {
 	timer.IsGameTimePaused = false;
