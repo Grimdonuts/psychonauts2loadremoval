@@ -37,44 +37,44 @@ startup
 			textSetting.GetType().GetProperty("Text2").SetValue(textSetting, text);
 	});
 
-	settings.Add("3701259", true, "Loboto's Labyrinth");
-	settings.Add("3681270", true, "Hub 1");
-	settings.Add("3666044", true, "Hollis' Classroom");
-	settings.Add("3663925", true, "Hollis' Hot Streak");
-	settings.Add("3672328", true, "Casino");
-	settings.Add("3650297", true, "Ford 1");
-	settings.Add("3721497", true, "Quarry");
-	settings.Add("3721662", true, "Enter Compton's Mind");
-	settings.Add("3642860", true, "Compton's Cookoff");
-	settings.Add("3650042", true, "Ford's Follicles");
-	settings.Add("3647840", true, "Strike City");
-	settings.Add("3657816", true, "Psi King");
-	settings.Add("3650152", true, "Cruller's Correspondence");
-	settings.Add("3649254", true, "Sharkophagus");
-	settings.Add("3630885", true, "Enter Bob's Mind");
-	settings.Add("3631050", true, "Bob's Bottles");
-	settings.Add("3696082", true, "Enter Cassie's Mind");
-	settings.Add("3635183", true, "Cassie's Collection");
-	settings.Add("3706190", true, "Lucrecia's Lament");
-	settings.Add("3652977", true, "Fatherland Follies");
+	settings.Add("SEQ_LOBO_CBFINI", true, "Loboto's Labyrinth");
+	settings.Add("SEQ_HQIN_HSCENT", true, "Hub 1");
+	settings.Add("SEQ_HOLLCLASS_HS1OUT", true, "Hollis' Classroom");
+	settings.Add("SEQ_HOLLCASINO_HSFINI", true, "Hollis' Hot Streak");
+	settings.Add("SEQ_HOLL_LLSHRB", true, "Casino");
+	settings.Add("SEQ_FORV_HQFPOP", true, "Ford 1");
+	settings.Add("SEQ_QUAR_QCLIFF", true, "Quarry");
+	settings.Add("SEQ_QUAR_QRCOIN", true, "Enter Compton's Mind");
+	settings.Add("SEQ_COMPT_CPBFOU", true, "Compton's Cookoff");
+	settings.Add("SEQ_FORH_FHOUTR", true, "Ford's Follicles");
+	settings.Add("SEQ_FORB_FBOUTR", true, "Strike City");
+	settings.Add("SEQ_HELM_HMBVIC", true, "Psi King");
+	settings.Add("SEQ_FORV_FVGINT", true, "Cruller's Correspondence");
+	settings.Add("SEQ_FORG_FGGDMA", true, "Sharkophagus");
+	settings.Add("SEQ_BOBZ_BBMIND", true, "Enter Bob's Mind");
+	settings.Add("SEQ_BOBZ_BBOUTR", true, "Bob's Bottles");
+	settings.Add("SEQ_HUB2_OCPORT", true, "Enter Cassie's Mind");
+	settings.Add("SEQ_CASS_CSOUTR", true, "Cassie's Collection");
+	settings.Add("SEQ_MALI_MAOUTR", true, "Lucrecia's Lament");
+	settings.Add("SEQ_GRIS_GRLIFS", true, "Fatherland Follies");
 
 	settings.Add("subsplits", false, "Subsplits");
 	settings.Add("psiKing", false, "Psi King", "subsplits");
-	settings.Add("sub 3658406", false, "Vision", "psiKing");
-	settings.Add("sub 3658921", false, "Mouth Nose", "psiKing");
-	settings.Add("sub 3659636", false, "Ear Hand", "psiKing");
+	settings.Add("sub SEQ_HELM_HMGUIT", false, "Vision", "psiKing");
+	settings.Add("sub SEQ_HELM_HMNMIN", false, "Mouth Nose", "psiKing");
+	settings.Add("sub SEQ_HELM_HMTHIN", false, "Ear Hand", "psiKing");
 
 	settings.Add("bobsBottles", false, "Bob's Bottles", "subsplits");
-	settings.Add("sub 3632433", false, "Tia's Bottle", "bobsBottles");
-	settings.Add("sub 3632653", false, "Truman's Bottle", "bobsBottles");
-	settings.Add("sub 3630435", false, "Helmut's Bottle", "bobsBottles");
+	settings.Add("sub SEQ_BOBZ_BBTISD", false, "Tia's Bottle", "bobsBottles");
+	settings.Add("sub SEQ_BOBZ_BBTRSD", false, "Truman's Bottle", "bobsBottles");
+	settings.Add("sub SEQ_BOBZ_BBHLSD", false, "Helmut's Bottle", "bobsBottles");
 
 	settings.Add("cassiesCollection", false, "Cassie's Collection", "subsplits");
-	settings.Add("sub 3634633", false, "Children's Corner", "cassiesCollection");
-	settings.Add("sub 3636109", false, "Literature Lane", "cassiesCollection");
+	settings.Add("sub SEQ_CASS_CSCLNC", false, "Children's Corner", "cassiesCollection");
+	settings.Add("sub SEQ_CASS_NOCODE_OpenWaterfrontDoor_CassieOffice", false, "Literature Lane", "cassiesCollection");
 
 	settings.Add("lucrecia", false, "Lucrecia's Lament", "subsplits");
-	settings.Add("sub 3705915", false, "Circus", "lucrecia");
+	settings.Add("sub SEQ_MALI_MAHDJP", false, "Circus", "lucrecia");
 
 	settings.Add("debug", false, "[DEBUG] Show tracked values on overlay");
 }
@@ -117,6 +117,82 @@ init
 	});
 
 	vars.ScanThread.Start();
+
+	vars.OldSequenceName = string.Empty;
+	vars.CurrentSequenceName = string.Empty;
+
+	Int32 gNameBlocksDebugOffset = 0;
+	switch (modules.First().ModuleMemorySize)
+	{
+		case 95350784: // Steam version 1101213
+			gNameBlocksDebugOffset = 88113424;
+			break;
+		case 90849280: // Xbox store version 1101128
+			gNameBlocksDebugOffset = 84018256;
+			break;
+		case 92307456: // DRM-free version 1095580
+			gNameBlocksDebugOffset = 85210320;
+			break;
+		default:
+			break;
+	}
+
+	Func<int, string> FNameToString = (comparisonIndex) =>
+	{
+		if (gNameBlocksDebugOffset == 0)
+		{
+			return null;
+		}
+
+		var blockIndex = comparisonIndex >> 16;
+		var blockOffset = 2 * (comparisonIndex & 0xFFFF);
+		var headerPtr = new DeepPointer(gNameBlocksDebugOffset + blockIndex * 8, blockOffset);
+
+		byte[] headerBytes = null;
+		if (headerPtr.DerefBytes(game, 2, out headerBytes))
+		{
+			bool isWide = (headerBytes[0] & 0x01) != 0;
+			int length = (headerBytes[1] << 2) | ((headerBytes[0] & 0xC0) >> 6);
+
+			IntPtr headerRawPtr;
+			if (headerPtr.DerefOffsets(game, out headerRawPtr))
+			{
+				var stringPtr = new DeepPointer(headerRawPtr + 2);
+				ReadStringType stringType = isWide ? ReadStringType.UTF16 : ReadStringType.ASCII;
+				int numBytes = length * (isWide ? 2 : 1);
+
+				string str;
+				if (stringPtr.DerefString(game, stringType, numBytes, out str))
+				{
+					return str;
+				}
+			}
+		}
+
+		return null;
+	};
+
+	Func<string, string> GetObjectNameFromObjectPath = (objectPath) =>
+	{
+		if (objectPath == null)
+		{
+			return null;
+		}
+
+		int lastDotIndex = objectPath.LastIndexOf('.');
+		if (lastDotIndex == -1)
+		{
+			return objectPath;
+		}
+
+		return objectPath.Substring(lastDotIndex + 1);
+	};
+
+	Func<int, string> GetObjectNameFromFName = (comparisonIndex) =>
+	{
+		return GetObjectNameFromObjectPath(FNameToString(comparisonIndex));
+	};
+	vars.GetObjectNameFromFName = GetObjectNameFromFName;
 }
 
 isLoading
@@ -135,10 +211,14 @@ update
 
 	vars.Data.UpdateAll(game);
 
+	vars.OldSequenceName = vars.GetObjectNameFromFName(vars.Data["SequenceID"].Old);
+	vars.CurrentSequenceName = vars.GetObjectNameFromFName(vars.Data["SequenceID"].Current);
+
 	if (settings["debug"])
 	{
 		vars.SetTextComponent("--------------DEBUG--------------", "");
 		vars.SetTextComponent("ID:", vars.Data["SequenceID"].Current.ToString());
+		vars.SetTextComponent("Name:", vars.CurrentSequenceName);
 		vars.SetTextComponent("World:", vars.Data["World"].Current);
 		vars.SetTextComponent("Loading:", vars.Data["Loading"].Current.ToString());
 	}
@@ -148,24 +228,23 @@ update
 start
 {
 	if (vars.Data["World"].Current == "/Entry/Entry")
-		return (vars.Data["SequenceID"].Current == 3701534);
+		return (vars.CurrentSequenceName == "SEQ_LOBO_CBLOAD");
 }
 
 split
 {
 	// Maligula ending split
-	if (vars.Data["SequenceID"].Old == 3633671 && vars.Data["SequenceID"].Current == 3633353)
+	if (vars.OldSequenceName == "SEQ_BOSS_MALBIG_EndPhase2" && vars.CurrentSequenceName == "SEQ_BOSS_MAFINI_MaligDefeat")
 		return true;
 
 	// Split on loads
 	if (vars.Data["Loading"].Old == false && vars.Data["Loading"].Current == true)
-		return settings[vars.Data["SequenceID"].Current.ToString()];
+		return settings[vars.CurrentSequenceName];
 
 	// Split on sequence change (cutscenes, dialogue)
 	if (settings["subsplits"])
 	{
 		if (vars.Data["SequenceID"].Old != vars.Data["SequenceID"].Current)
-		return settings["sub " + vars.Data["SequenceID"].Current.ToString()];
+			return settings["sub " + vars.CurrentSequenceName];
 	}
-	
 }
