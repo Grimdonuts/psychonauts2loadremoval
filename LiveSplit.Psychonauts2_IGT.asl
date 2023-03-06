@@ -83,6 +83,7 @@ init
 {
 	timer.IsGameTimePaused = false;
 
+	vars.FNamePool = IntPtr.Zero;
 	vars.CancelSource = new CancellationTokenSource();
 	vars.ScanThread = new Thread(() =>
 	{
@@ -91,6 +92,9 @@ init
 		var gWorld = IntPtr.Zero;
 		var gWorldTrg = new SigScanTarget(10, "80 7C 24 ?? 00 ?? ?? 48 8B 3D ???????? 48")
 		{ OnFound = (p, s, ptr) => ptr + 0x4 + p.ReadValue<int>(ptr) };
+
+		var fNameTrg =new SigScanTarget (1, "00 ?? ?? ?? ?? ?? 7F 00 00 2B 39 00 00")
+		{ OnFound = (process, sc, address) => process.ReadPointer(address) };
 
 		var scanner = new SignatureScanner(game, modules.First().BaseAddress, modules.First().ModuleMemorySize);
 		var token = vars.CancelSource.Token;
@@ -113,40 +117,34 @@ init
 			Thread.Sleep(2000);
 		}
 
-		vars.Log("Exitng scan thread.");
+		while (!token.IsCancellationRequested)
+		{
+			if (vars.FNamePool == IntPtr.Zero && (vars.FNamePool = scanner.Scan(fNameTrg)) != IntPtr.Zero)
+			{
+				vars.Log("Found FNamePool at 0x" + vars.FNamePool.ToString("X") + ".");
+				break;
+			}
+
+			Thread.Sleep(2000);
+		}
+
+		vars.Log("Exiting scan thread.");
 	});
 
 	vars.ScanThread.Start();
 
-	vars.OldSequenceName = string.Empty;
-	vars.CurrentSequenceName = string.Empty;
-
-	Int32 gNameBlocksDebugOffset = 0;
-	switch (modules.First().ModuleMemorySize)
-	{
-		case 95350784: // Steam version 1101213
-			gNameBlocksDebugOffset = 88113424;
-			break;
-		case 90849280: // Xbox store version 1101128
-			gNameBlocksDebugOffset = 84018256;
-			break;
-		case 92307456: // DRM-free version 1095580
-			gNameBlocksDebugOffset = 85210320;
-			break;
-		default:
-			break;
-	}
+	current.SequenceName = string.Empty;
 
 	Func<int, string> FNameToString = (comparisonIndex) =>
 	{
-		if (gNameBlocksDebugOffset == 0)
+		if (vars.FNamePool == IntPtr.Zero)
 		{
 			return null;
 		}
 
 		var blockIndex = comparisonIndex >> 16;
 		var blockOffset = 2 * (comparisonIndex & 0xFFFF);
-		var headerPtr = new DeepPointer(gNameBlocksDebugOffset + blockIndex * 8, blockOffset);
+		var headerPtr = new DeepPointer(vars.FNamePool + blockIndex * 8, blockOffset);
 
 		byte[] headerBytes = null;
 		if (headerPtr.DerefBytes(game, 2, out headerBytes))
@@ -211,14 +209,18 @@ update
 
 	vars.Data.UpdateAll(game);
 
-	vars.OldSequenceName = vars.GetObjectNameFromFName(vars.Data["SequenceID"].Old);
-	vars.CurrentSequenceName = vars.GetObjectNameFromFName(vars.Data["SequenceID"].Current);
+	if (vars.Data["SequenceID"].Changed)
+	{
+		current.SequenceName = vars.GetObjectNameFromFName(vars.Data["SequenceID"].Current);
+		vars.Log("Old Sequence: " + old.SequenceName);
+		vars.Log("Current Sequence: " + current.SequenceName);
+	}
 
 	if (settings["debug"])
 	{
 		vars.SetTextComponent("--------------DEBUG--------------", "");
 		vars.SetTextComponent("ID:", vars.Data["SequenceID"].Current.ToString());
-		vars.SetTextComponent("Name:", vars.CurrentSequenceName);
+		vars.SetTextComponent("Name:", current.SequenceName);
 		vars.SetTextComponent("World:", vars.Data["World"].Current);
 		vars.SetTextComponent("Loading:", vars.Data["Loading"].Current.ToString());
 	}
@@ -228,23 +230,23 @@ update
 start
 {
 	if (vars.Data["World"].Current == "/Entry/Entry")
-		return (vars.CurrentSequenceName == "SEQ_LOBO_CBLOAD");
+		return (current.SequenceName == "SEQ_LOBO_CBLOAD");
 }
 
 split
 {
 	// Maligula ending split
-	if (vars.OldSequenceName == "SEQ_BOSS_MALBIG_EndPhase2" && vars.CurrentSequenceName == "SEQ_BOSS_MAFINI_MaligDefeat")
+	if (old.SequenceName == "SEQ_BOSS_MALBIG_EndPhase2" && current.SequenceName == "SEQ_BOSS_MAFINI_MaligDefeat")
 		return true;
 
 	// Split on loads
 	if (vars.Data["Loading"].Old == false && vars.Data["Loading"].Current == true)
-		return settings[vars.CurrentSequenceName];
+		return settings[current.SequenceName];
 
 	// Split on sequence change (cutscenes, dialogue)
 	if (settings["subsplits"])
 	{
 		if (vars.Data["SequenceID"].Old != vars.Data["SequenceID"].Current)
-			return settings["sub " + vars.CurrentSequenceName];
+			return settings["sub " + current.SequenceName];
 	}
 }
